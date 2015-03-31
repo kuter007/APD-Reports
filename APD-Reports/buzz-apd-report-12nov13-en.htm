@@ -1,0 +1,63 @@
+<h3>Eligibility for Alternate Path to Delegation</h3>
+<p>TLD "buzz" is eligible for the Alternate Path to Delegation as described in the ICANN New gTLD Collision Occurrence Management plan. [<a href="#en1">1</a>]</p> 
+<h3>Second Level Domains (SLDs)</h3>
+<p>A total of 5230 unique applicable SLDs were detected in the eight DNS-OARC "Day In The Life" ("DITL") datasets [<a href="#en2">2</a>] collected in 2006-2013, and the 2010 DNSSEC rollout datasets; hereafter "input datasets." Pursuant to the ICANN New gTLD Collision Occurrence Management plan, if the Registry Operator chooses to block [<a href="#en3">3</a>] all of these strings, its proposed TLD may proceed to delegation in advance of the forthcoming Collision Occurrence Assessment.</p>
+
+<p>The list of SLD Strings that must be blocked is available <a href="/sites/default/files/tlds/buzz/buzz-apd-list-12nov13-en.csv">here</a>.</p>
+
+<p>Strings appearing in the input datasets that are not valid hostnames as defined in RFC 1123 ("LDH Rule") and are not valid A-labels as defined in RFC 5890 were not included in the block list. Furthermore, the contractually required SLD "nic" will not appear in the block list.</p>
+
+The block list was determined as follows: 
+<ol>
+<li>List all unique strings at the SLD position in DNS requests where the applied-for string is in the TLD position in all input datasets;</li>
+<li>Filter the SLD query position as described above;</li>
+<li>Remove the "Chrome 10" strings at the leftmost query position on a best effort basis (see Methodology section below);</li>
+</ol>
+<p>The remaining SLD strings comprise the block list.</p>
+
+<h3>Methodology</h3>
+<em>Data and Source Code</em>
+<p>DNS-OARC data was re-processed from the raw PCAP [<a href="#en4">4</a>] files provided by participating DNS Root Server Operators as a part of the "Day In The Life," and 2010 DNSSEC rollout data collection programs. Source code and procedures to process the raw files are available on GitHub. [<a href="#en5">5</a>]  Because processing these files is resource intensive, DNS-OARC members are invited to utilize the intermediary files located here (/home/kwhite/jas/gtld/jas) [<a href="#en6">6</a>] for their own analysis and research.</p>
+
+<em>SLD Strings Excluded from the Block List</em>
+<p>A significant proportion of the queries appear to be randomly generated 10 character alphabetic [<a href="#en7">7</a>] strings used by the Google Chrome browser to detect certain aspects of DNS resolver behavior. [<a href="#en8">8</a>] While there appear to be numerous varieties and sources of random/algorithmically-generated strings in the input datasets, the 10 character Chrome queries appear to present minimal risk if filtered from the block lists.</p>
+
+<p>The "Chrome 10" strings come in triplets as described in the Chromium source code. Only strings that are seen coming in the triplet sequence from the same IP are eliminated.</p>
+
+<p>While "randomness" is relatively easy for humans to detect, it is remarkably hard for machines. However, since the datasets are so dominated by these labels - for which blocking adds no practical value - significant effort to detect and exclude these has been taken.</p>
+
+<p>We engaged expert data scientists to develop a robust mechanism to detect these random strings. The following is a high level description of the algorithm they developed.</p>
+
+<p>Only 10 character labels consistent with the format described in the Chromium source code  are subjected to "random detection." [<a href="#en9">9</a>]</p>
+
+<p>Parameters were selected and algorithms were tuned with an English dictionary. [<a href="#en10">10</a>] "Randomness" of each label is determined only after analyzing the entire dataset and performing a statistical analysis of the labels and multiple substrings depending on the individual characteristics of the label. </p>
+
+<p>To validate and tune the algorithm, we ran 84 individual experiments for a total of 851 CPU hours on the DITL 2013 and 2012 datasets. The quality of the random recognizer was confirmed with the following tests: </p>
+
+<p>1) Test #1: An English dictionary was used to count the number of false positives detected. The ratio of "RANDOM_YES predictions that hold an English word" to "the total # of RANDOM_YES predictions" was calculated. This test verifies that a RANDOM_YES will not have English words embedded in it. Manual inspection of borderline strings very often reveals English words like "host," "mail," and "server" embedded in strings, so this test verified the random recognizer's performance in those situations. Less than 0.2% error rate was observed following manual inspection.</p>
+
+<p>2) Test#2: Results of the random detector were compared to a simplistic detection of the Chrome random strings. Less than 0.8% error rate was observed following manual inspection.</p>
+
+<hr>
+
+<a name="en1" />
+<p>[1] <a href="/en/groups/board/documents/resolutions-new-gtld-annex-1-07oct13-en.pdf">http://www.icann.org/en/groups/board/documents/resolutions-new-gtld-annex-1-07oct13-en.pdf</a></p>
+<a name="en2" />
+<p>[2] <a href="https://www.dns-oarc.net/oarc/data/ditl">https://www.dns-oarc.net/oarc/data/ditl</a></p>
+<a name="en3" />
+<p>[3] <a href="/en/topics/idn/idn-vip-integrated-issues-final-clean-20feb12-en.pdf">http://www.icann.org/en/topics/idn/idn-vip-integrated-issues-final-clean-20feb12-en.pdf</a>, Section 5.</p>
+<a name="en4" />
+<p>[4] PCAP is a binary network packet capture file format</p>
+<a name="en5" />
+<p>[5] <a href="https://github.com/JASdevteam/dns-oarc">https://github.com/JASdevteam/dns-oarc</a></p>
+<a name="en6" />
+<p>[6] DNS-OARC may move these intermediary files to a permanent location at some future point.</p>
+<a name="en7" />
+<p>[7] The length is hard-coded in Chromium source (IntranetRedirectDetector::kNumCharsInHostnames = 10) <a href="https://code.google.com/p/chromium/codesearch#chromium/src/chrome/browser/intranet_redirect_detector.cc&q=kNumCharsInHostnames&sq=package:chromium&type=cs&l=24">here</a></p>
+<a name="en8" />
+<p>[8] See comments in source code <a href="https://code.google.com/p/chromium/codesearch#chromium/src/chrome/browser/intranet_redirect_detector.h&q=package:%5Echromium$%20file:(%5E%7C/)chrome/browser/intranet_redirect_detector%5C.h$&sq=package:chromium&type=cs&l=1">here</a></p>
+<a name="en9" />
+<p>[9] <a href="https://code.google.com/p/chromium/codesearch#chromium/src/chrome/browser/intranet_redirect_detector.cc&q=redirect_detect&sq=package:chromium&type=cs&l=5">Chromium Source</a></p>
+<a name="en10" />
+<p>[10] Of course there are non-English strings in the labels, but many are English or English-derived strings like "proxy" and "host" that are common internationally. An English dictionary was a good validation tool, but in the end "randomness" is not determined by existence in an English dictionary.</p>
+
